@@ -78,30 +78,26 @@ var dataset =
 
 // Width and height
 var BoxWidth = 628.09174;
-var boxHeight = 1051.4788;
-var padding = 20;
-var mapDomain = {
-    "longitudeMin": -10.476361,
-    "longitudeMax": 1.765083,
-    "latitudeMin": 49.162600,
-    "latitudeMax": 60.846142
+var BoxHeight = 1051.4788;
+var BoxPadding = 20;
+var MapDomain = {
+    "LongitudeMin": -10.476361,
+    "LongitudeMax": 1.765083,
+    "LatitudeMin": 49.162600,
+    "LatitudeMax": 60.846142
 };
-
-// Create scale functions
-var xScale = d3.scaleLinear()
-    .domain([mapDomain.longitudeMin, mapDomain.longitudeMax])
-    .range([padding, BoxWidth - padding * 2]);
-
-var yScale = d3.scaleLinear()
-    .domain([mapDomain.latitudeMin, mapDomain.latitudeMax])
-    .range([boxHeight - padding, padding]);
-
-var aScale = d3.scaleSqrt()
-    .domain([0, d3.max(dataset, function (d) { return d.Population; })])
-    .range([0, 10]);
 
 
 function d3Draw() {
+    // Create scale functions
+    var xScale = d3.scaleLinear()
+        .domain([MapDomain.LongitudeMin, MapDomain.LongitudeMax])
+        .range([BoxPadding, BoxWidth - BoxPadding * 2]);
+
+    var yScale = d3.scaleLinear()
+        .domain([MapDomain.LatitudeMin, MapDomain.LatitudeMax])
+        .range([BoxHeight - BoxPadding, BoxPadding]);
+
     var aScale = d3.scaleSqrt()
         .domain([0, d3.max(dataset, function (d) { return d.Population; })])
         .range([0, 10]);
@@ -120,7 +116,7 @@ function d3Draw() {
     var svg = d3.select("body")
         .append("svg")
         .attr("width", BoxWidth)
-        .attr("height", boxHeight);
+        .attr("height", BoxHeight);
 
     //var svg = d3.select("body").append("svg").attr("width", Width).attr(
     //    "Height", Height);
