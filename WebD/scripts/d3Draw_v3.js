@@ -69,10 +69,27 @@ function D3Draw(dataset) {
             return ("rgb(255,0,0)");
         })
         .attr("stroke-width", function (d) {
-            return (d / 5);
+            return (aScale(d.Population) / 5);
         })
 ;
 
+    // Create town labels
+    var townNames = svgTowns.selectAll("text").data(dataset).enter()
+        .append("text")
+        .attr("x", function (d) {
+            return (xScale(d.lng));
+        })
+        .attr("y", function (d) {
+            return (yScale(d.lat));
+        })
+        .attr("font-family", "sans-serif")
+        .attr("font-size", 11)
+        .attr("fill", "lightblue")
+;
+
+    townNames.text(function (d) {
+        return d.Town + ", " + d.County;
+    });
 
     // todo: Create labels
     // todo: Create X axis, Y axis
@@ -98,6 +115,7 @@ function LoadData(NumberOfTowns) {
 
         // Local test data
         dataSource = "sampleData/10Towns.json";
+        //dataSource = "sampleData/500Towns.json";
 
         d3.json(dataSource, function (error, data) {
             if (error) {
