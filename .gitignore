@@ -339,3 +339,6 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 /WebD/scripts/d3Draw - Copy.js
+/WebD/d3.v3
+/WebD/scripts/ex14a.js.exclude
+/WebD/Ex14a.html.exclude

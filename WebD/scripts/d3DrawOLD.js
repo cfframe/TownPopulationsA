@@ -1,7 +1,7 @@
 const DataSource = "sampleData/10Towns.json";
 // http://35.211.183.112/Circles/Towns/50
 
-var dataset =
+var ExampleDataset =
     [
         {
             "lng": -6.652,
@@ -81,23 +81,16 @@ var BoxWidth = 628.09174;
 var BoxHeight = 1051.4788;
 var BoxPadding = 20;
 var MapDomain = {
-    "LongitudeMin": -10.476361,
-    "LongitudeMax": 1.765083,
-    "LatitudeMin": 49.162600,
-    "LatitudeMax": 60.846142
+    "longitudeMin": -10.476361,
+    "longitudeMax": 1.765083,
+    "latitudeMin": 49.162600,
+    "latitudeMax": 60.846142
 };
 
+var TownFillColour = "rgb(192,98,150)";
+var TownStrokeColour = "rgb(147,0,150)";
 
-function d3Draw() {
-    // Create scale functions
-    var xScale = d3.scaleLinear()
-        .domain([MapDomain.LongitudeMin, MapDomain.LongitudeMax])
-        .range([BoxPadding, BoxWidth - BoxPadding * 2]);
-
-    var yScale = d3.scaleLinear()
-        .domain([MapDomain.LatitudeMin, MapDomain.LatitudeMax])
-        .range([BoxHeight - BoxPadding, BoxPadding]);
-
+function d3Draw(dataset) {
     var aScale = d3.scaleSqrt()
         .domain([0, d3.max(dataset, function (d) { return d.Population; })])
         .range([0, 10]);
@@ -118,6 +111,21 @@ function d3Draw() {
         .attr("width", BoxWidth)
         .attr("height", BoxHeight);
 
+
+    // Create scale functions
+    var xScale = d3.scaleLinear()
+        .domain([MapDomain.longitudeMin, MapDomain.longitudeMax])
+        .range([BoxPadding, BoxWidth - BoxPadding * 2]);
+
+    var yScale = d3.scaleLinear()
+        .domain([MapDomain.latitudeMin, MapDomain.latitudeMax])
+        .range([BoxHeight - BoxPadding, BoxPadding]);
+
+    var aScale = d3.scaleSqrt()
+        .domain([0, d3.max(dataset, function (d) { return d.Population; })])
+        .range([0, 10]);
+
+
     //var svg = d3.select("body").append("svg").attr("width", Width).attr(
     //    "Height", Height);
 
@@ -136,10 +144,10 @@ function d3Draw() {
             return (aScale(d.Population));
         })
         .attr("fill", function (d) {
-            return ("rgb(0,255,0)");
+            return (TownFillColour);
         })
         .attr("stroke", function (d) {
-            return ("rgb(255,0,0)");
+            return (TownStrokeColour);
         })
         .attr("stroke-width", function (d) {
             return (d / 5);
@@ -173,4 +181,4 @@ function loadData() {
 }
 
 //window.onload = loadData;
-window.onload = d3Draw;
+window.onload = d3Draw(ExampleDataset);
