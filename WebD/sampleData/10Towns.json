@@ -14,6 +14,20 @@
     "lat": 58.50062
   },
   {
+    "lng": -3.16277,
+    "Town": "Abbeyhill",
+    "Population": 104798,
+    "County": "City of Edinburgh",
+    "lat": 55.95803
+  },
+  {
+    "lng": 1.25937,
+    "Town": "Alby Hill",
+    "Population": 77004,
+    "County": "Norfolk",
+    "lat": 52.8632
+  },
+  {
     "lng": -3.26466,
     "Town": "Abertridwr",
     "Population": 51055,
@@ -40,20 +54,6 @@
     "Population": 27950,
     "County": "Angus",
     "lat": 56.87436
-  },
-  {
-    "lng": 1.25937,
-    "Town": "Alby Hill",
-    "Population": 77004,
-    "County": "Norfolk",
-    "lat": 52.8632
-  },
-  {
-    "lng": -3.16277,
-    "Town": "Abbeyhill",
-    "Population": 104798,
-    "County": "City of Edinburgh",
-    "lat": 55.95803
   },
   {
     "lng": -3.05199,

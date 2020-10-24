@@ -1,14 +1,14 @@
 //const DataSource = "sampleData/10Towns.json";
 // http://35.211.183.112/Circles/Towns/50
 
-var svg;
+var svgTowns;
 var DataSourceBase = "http://35.211.183.112/Circles/Towns/";
 var DefaultNumberOfTowns = 20;
 
 // Width and height
 var BoxWidth = 628.09174;
 var BoxHeight = 1051.4788;
-var BoxPadding = 50;
+var BoxPadding = 0;
 var MapDomain = {
     "LongitudeMin": -10.476361,
     "LongitudeMax": 1.765083,
@@ -42,19 +42,14 @@ function D3Draw(dataset) {
         .ticks(5);
 
     // Create SVG element
-    svg = d3.select("body")
+    svgTowns = d3.select("body")
         .append("svg")
         .attr("width", BoxWidth)
         .attr("height", BoxHeight)
-        //.attr("img", "src='/images/united-kingdom.svg'")
         ;
 
-
-    //var svg = d3.select("body").append("svg").attr("width", Width).attr(
-    //    "Height", Height);
-
     // Create circles
-    var circles = svg.selectAll("circle").data(dataset).enter()
+    var circles = svgTowns.selectAll("circle").data(dataset).enter()
         .append("circle");
 
     circles
@@ -75,7 +70,8 @@ function D3Draw(dataset) {
         })
         .attr("stroke-width", function (d) {
             return (d / 5);
-        });
+        })
+;
 
 
     // todo: Create labels
@@ -101,7 +97,7 @@ function LoadData(NumberOfTowns) {
         var dataSource = DataSourceBase + NumberOfTowns.toString();
 
         // Local test data
-        //dataSource = "sampleData/10Towns.json";
+        dataSource = "sampleData/10Towns.json";
 
         d3.json(dataSource, function (error, data) {
             if (error) {
