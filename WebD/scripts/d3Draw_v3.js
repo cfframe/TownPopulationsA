@@ -1,95 +1,125 @@
 //const DataSource = "sampleData/10Towns.json";
 // http://35.211.183.112/Circles/Towns/50
 
-var svgTowns;
-var DataSourceBase = "http://35.211.183.112/Circles/Towns/";
+var svgUK;
+var RemoteDataSourceBase = "http://35.211.183.112/Circles/Towns/";
+var DataSourceLocation = "remote"; //"local" or "remote"
 var DefaultNumberOfTowns = 20;
 
-// Width and height
-var BoxWidth = 628.09174;
-var BoxHeight = 1051.4788;
-var BoxPadding = 0;
-var MapDomain = {
-    "LongitudeMin": -10.476361,
-    "LongitudeMax": 1.765083,
-    "LatitudeMin": 49.162600,
-    "LatitudeMax": 60.846142
-};
 
+// Width and height
+//var BoxWidth = 960;
+//var BoxHeight = 1160;
+var BoxWidth = 800;
+var BoxHeight = 970;
 
 function D3Draw(dataset) {
-    // Create scale functions
-    var xScale = d3.scale.linear()
-        .domain([MapDomain.LongitudeMin, MapDomain.LongitudeMax])
-        .range([BoxPadding, BoxWidth - BoxPadding * 2]);
-
-    var yScale = d3.scale.linear()
-        .domain([MapDomain.LatitudeMin, MapDomain.LatitudeMax])
-        .range([BoxHeight - BoxPadding, BoxPadding]);
+    // Create scale function for circles
 
     var aScale = d3.scale.sqrt()
         .domain([0, d3.max(dataset, function (d) { return d.Population; })])
         .range([0, 10]);
 
-    // Define X axis
-    var xAxis = d3.svg.axis()
-        .scale(xScale).orient("bottom")
-        .ticks(5);
+    //// Define X axis
+    //var xAxis = d3.svg.axis()
+    //    .scale(xScale).orient("bottom")
+    //    .ticks(5);
 
-    // Define Y axis
-    var yAxis = d3.svg.axis()
-        .scale(yScale).orient("left")
-        .ticks(5);
+    //// Define Y axis
+    //var yAxis = d3.svg.axis()
+    //    .scale(yScale).orient("left")
+    //    .ticks(5);
 
     // Create SVG element
-    svgTowns = d3.select("body")
+    svgUK = d3.select("body")
         .append("svg")
         .attr("width", BoxWidth)
         .attr("height", BoxHeight)
         ;
 
-    // Create circles
-    var circles = svgTowns.selectAll("circle").data(dataset).enter()
-        .append("circle");
+    // Draw UK map and add towns
+    d3.json("uk.json", function (error, uk) {
+        if (error) return console.error(error);
 
-    circles
-        .attr("cx", function (d) {
-            return (xScale(d.lng));
-        })
-        .attr("cy", function (d) {
-            return (yScale(d.lat));
-        })
-        .attr("r", function (d) {
-            return (aScale(d.Population));
-        })
-        .attr("fill", function (d) {
-            return ("rgb(0,255,0)");
-        })
-        .attr("stroke", function (d) {
-            return ("rgb(255,0,0)");
-        })
-        .attr("stroke-width", function (d) {
-            return (aScale(d.Population) / 5);
-        })
-;
+        var subunits = topojson.feature(uk, uk.objects.subunits);
 
-    // Create town labels
-    var townNames = svgTowns.selectAll("text").data(dataset).enter()
-        .append("text")
-        .attr("x", function (d) {
-            return (xScale(d.lng));
-        })
-        .attr("y", function (d) {
-            return (yScale(d.lat));
-        })
-        .attr("font-family", "sans-serif")
-        .attr("font-size", 11)
-        .attr("fill", "lightblue")
-;
+        //var projection = d3.geo.mercator();
+        var projection = d3.geo.albers()
+            .center([0, 55.4])
+            .rotate([4.4, 0])
+            .parallels([50, 60])
+            .scale(5000)
+            .translate([BoxWidth / 2, BoxHeight / 2]);
 
-    townNames.text(function (d) {
-        return d.Town + ", " + d.County;
+        var path = d3.geo.path()
+            .projection(projection);
+
+        svgUK.append("path")
+            .datum(subunits)
+            .attr("d", path);
+
+        //svg.append("path")
+        //    .datum(topojson.feature(uk, uk.objects.subunits))
+        //    .attr("d", d3.geo.path().projection(d3.geo.mercator()));
+
+        // Add subunit class to all subunits so can control styling of each country
+        svgUK.selectAll(".subunit")
+            .data(topojson.feature(uk, uk.objects.subunits).features)
+            .enter().append("path")
+            .attr("class", function (d) { return "subunit " + d.id; })
+            .attr("d", path);
+
+        // Create circles
+        var circles = svgUK.selectAll("circle").data(dataset).enter()
+            .append("circle");
+
+        circles
+            .attr("cx", function (d) {
+                console.log("Lng " + d.lng + "; Lat " + d.lat + "; Town: " + d.Town);
+                return projection([d.lng, d.lat])[0];
+                //return (xScale(d.lng));
+            })
+            .attr("cy", function (d) {
+                //return (yScale(d.lat));
+                return (projection([d.lng, d.lat])[1]);
+            })
+            .attr("r", function (d) {
+                return (aScale(d.Population));
+            })
+            .attr("fill", function (d) {
+                return ("rgb(0,255,0)");
+            })
+            .attr("stroke", function (d) {
+                return ("rgb(255,0,0)");
+            })
+            .attr("stroke-width", function (d) {
+                return (aScale(d.Population) / 5);
+            });
+
+        // Create town labels
+        var townNames = svgUK.selectAll("text").data(dataset).enter()
+            .append("text")
+            .attr("x", function (d) {
+                //return (xScale(d.lng));
+                return projection([d.lng, d.lat])[0];
+            })
+            .attr("y", function (d) {
+                //return (yScale(d.lat));
+                return (projection([d.lng, d.lat])[1]);
+            })
+            .attr("font-family", "sans-serif")
+            .attr("font-size", 11)
+            .attr("fill", "darkblue")
+            ;
+
+        townNames.text(function (d) {
+            return d.Town;
+        });
     });
+
+
+
+
 
     // todo: Create labels
     // todo: Create X axis, Y axis
@@ -108,14 +138,16 @@ function LoadData(NumberOfTowns) {
         Error.message = "Value for number of towns is not a valid number."
         HandleError(Error);
 
-        NumberOfTowns = 10;
+        NumberOfTowns = DefaultNumberOfTowns;
     } else {
 
-        var dataSource = DataSourceBase + NumberOfTowns.toString();
+        var dataSource = RemoteDataSourceBase + NumberOfTowns.toString();
 
         // Local test data
-        dataSource = "sampleData/10Towns.json";
-        //dataSource = "sampleData/500Towns.json";
+        if (DataSourceLocation === "local") {
+            dataSource = "sampleData/10Towns.json";
+            //dataSource = "sampleData/500Towns.json";
+        }
 
         d3.json(dataSource, function (error, data) {
             if (error) {

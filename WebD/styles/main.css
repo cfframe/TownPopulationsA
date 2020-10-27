@@ -1,4 +1,19 @@
-﻿svg {
-    background-image: url(/images/united-kingdom.svg);
-    background-color: darkgray;
+﻿.subunit.SCT {
+    fill: #ddc;
+}
+
+.subunit.WLS {
+    fill: #cdd;
+}
+
+.subunit.NIR {
+    fill: #cdc;
+}
+
+.subunit.ENG {
+    fill: #dcd;
+}
+
+.subunit.IRL {
+    fill: #fff;
 }
