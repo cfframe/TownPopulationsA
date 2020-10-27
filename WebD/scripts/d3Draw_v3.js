@@ -1,29 +1,29 @@
 //const DataSource = "sampleData/10Towns.json";
 // http://35.211.183.112/Circles/Towns/50
 
-var svgUK;
+var SvgUK;
 var RemoteDataSourceBase = "http://35.211.183.112/Circles/Towns/";
 var DataSourceLocation = "remote"; //"local" or "remote"
 var DefaultNumberOfTowns = 20;
 
-
 // Width and height
-var BoxWidth = 800;
-var BoxHeight = 970;
+var BoxWidth = 640;
+var BoxHeight = 784;
 
 // Town styles
 var TownFillColour = "rgb(63,255,63)";
 var TownStrokeColour = "rgb(255,63,63)";
+var MaxCircleSize = 10;
 
 function D3Draw(dataset) {
     // Create scale function for circles
 
-    var aScale = d3.scale.sqrt()
+    var areaScale = d3.scale.sqrt()
         .domain([0, d3.max(dataset, function (d) { return d.Population; })])
-        .range([0, 10]);
+        .range([0, MaxCircleSize]);
 
     // Create SVG element
-    svgUK = d3.select("body")
+    SvgUK = d3.select("body")
         .append("svg")
         .attr("width", BoxWidth)
         .attr("height", BoxHeight)
@@ -41,39 +41,37 @@ function D3Draw(dataset) {
             .center([0, 55.4])
             .rotate([4.4, 0])
             .parallels([50, 60])
-            .scale(5000)
+            .scale(4000)
             .translate([BoxWidth / 2, BoxHeight / 2]);
 
         var path = d3.geo.path()
             .projection(projection);
 
-        svgUK.append("path")
+        SvgUK.append("path")
             .datum(subunits)
             .attr("d", path);
 
         // Add subunit class to all subunits so can control styling of each country
-        svgUK.selectAll(".subunit")
+        SvgUK.selectAll(".subunit")
             .data(topojson.feature(uk, uk.objects.subunits).features)
             .enter().append("path")
             .attr("class", function (d) { return "subunit " + d.id; })
             .attr("d", path);
 
         // Create circles
-        var circles = svgUK.selectAll("circle").data(dataset).enter()
+        var circles = SvgUK.selectAll("circle").data(dataset).enter()
             .append("circle");
 
         circles
             .attr("cx", function (d) {
                 console.log("Lng " + d.lng + "; Lat " + d.lat + "; Town: " + d.Town);
                 return projection([d.lng, d.lat])[0];
-                //return (xScale(d.lng));
             })
             .attr("cy", function (d) {
-                //return (yScale(d.lat));
                 return (projection([d.lng, d.lat])[1]);
             })
             .attr("r", function (d) {
-                return (aScale(d.Population));
+                return (areaScale(d.Population));
             })
             .attr("fill", function (d) {
                 return (TownFillColour);
@@ -82,18 +80,16 @@ function D3Draw(dataset) {
                 return (TownStrokeColour);
             })
             .attr("stroke-width", function (d) {
-                return (aScale(d.Population) / 5);
+                return (areaScale(d.Population) / 5);
             });
 
         // Create town labels
-        var townNames = svgUK.selectAll("text").data(dataset).enter()
+        var townNames = SvgUK.selectAll("text").data(dataset).enter()
             .append("text")
             .attr("x", function (d) {
-                //return (xScale(d.lng));
-                return projection([d.lng, d.lat])[0] + aScale(d.Population) + 1 ;
+                return projection([d.lng, d.lat])[0] + areaScale(d.Population) + 1 ;
             })
             .attr("y", function (d) {
-                //return (yScale(d.lat));
                 return projection([d.lng, d.lat])[1] + 4;
             })
             .attr("font-family", "sans-serif")
