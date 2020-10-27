@@ -15,13 +15,16 @@ var TownFillColour = "rgb(63,255,63)";
 var TownStrokeColour = "rgb(255,63,63)";
 var MaxCircleSize = 10;
 
+// Initialise Projection
+var Projection = d3.geo.albers()
+    .center([0, 55.4])
+    .rotate([4.4, 0])
+    .parallels([50, 60])
+    .scale(4000)
+    .translate([BoxWidth / 2, BoxHeight / 2]);
+
+
 function D3Draw(dataset) {
-    // Create scale function for circles
-
-    var areaScale = d3.scale.sqrt()
-        .domain([0, d3.max(dataset, function (d) { return d.Population; })])
-        .range([0, MaxCircleSize]);
-
     // Create SVG element
     SvgUK = d3.select("body")
         .append("svg")
@@ -36,16 +39,8 @@ function D3Draw(dataset) {
         // Get countries
         var subunits = topojson.feature(uk, uk.objects.subunits);
 
-        // 
-        var projection = d3.geo.albers()
-            .center([0, 55.4])
-            .rotate([4.4, 0])
-            .parallels([50, 60])
-            .scale(4000)
-            .translate([BoxWidth / 2, BoxHeight / 2]);
-
         var path = d3.geo.path()
-            .projection(projection);
+            .projection(Projection);
 
         SvgUK.append("path")
             .datum(subunits)
@@ -58,54 +53,101 @@ function D3Draw(dataset) {
             .attr("class", function (d) { return "subunit " + d.id; })
             .attr("d", path);
 
-        // Create circles
-        var circles = SvgUK.selectAll("circle").data(dataset).enter()
+        LoadTowns(dataset);
+
+    });
+}
+
+function LoadTowns(dataset, isReload) {
+    console.log("Called LoadTowns at " + (new Date).toLocaleTimeString());
+    isReload = null ? false : isReload;
+
+    // Create scale function for circles
+    var areaScale = d3.scale.sqrt()
+        .domain([0, d3.max(dataset, function (d) { return d.Population; })])
+        .range([0, MaxCircleSize]);
+
+    // Initialize Circles and Town labels
+    var circles,
+        townNames;
+
+    if (!isReload) {
+        circles = SvgUK.selectAll("circle").data(dataset).enter()
             .append("circle");
+        townNames = SvgUK.selectAll("text").data(dataset).enter()
+            .append("text");
+    } else {
+        circles = SvgUK.selectAll("circle").data(dataset);
+        townNames = SvgUK.selectAll("text").data(dataset);
+    }
 
-        circles
-            .attr("cx", function (d) {
-                console.log("Lng " + d.lng + "; Lat " + d.lat + "; Town: " + d.Town);
-                return projection([d.lng, d.lat])[0];
-            })
-            .attr("cy", function (d) {
-                return (projection([d.lng, d.lat])[1]);
-            })
-            .attr("r", function (d) {
-                return (areaScale(d.Population));
-            })
-            .attr("fill", function (d) {
-                return (TownFillColour);
-            })
-            .attr("stroke", function (d) {
-                return (TownStrokeColour);
-            })
-            .attr("stroke-width", function (d) {
-                return (areaScale(d.Population) / 5);
-            });
-
-        // Create town labels
-        var townNames = SvgUK.selectAll("text").data(dataset).enter()
-            .append("text")
-            .attr("x", function (d) {
-                return projection([d.lng, d.lat])[0] + areaScale(d.Population) + 1 ;
-            })
-            .attr("y", function (d) {
-                return projection([d.lng, d.lat])[1] + 4;
-            })
-            .attr("font-family", "sans-serif")
-            .attr("font-size", 11)
-            .attr("fill", "darkblue")
-            ;
-
-        townNames.text(function (d) {
-            return d.Town;
+    // Circles - position from lng/lat, size from population
+    circles
+        .attr("cx", function (d) {
+            //console.log("Lng " + d.lng + "; Lat " + d.lat + "; Town: " + d.Town);
+            return Projection([d.lng, d.lat])[0];
+        })
+        .attr("cy", function (d) {
+            return (Projection([d.lng, d.lat])[1]);
+        })
+        .attr("r", function (d) {
+            return (areaScale(d.Population));
+        })
+        .attr("fill", function (d) {
+            return (TownFillColour);
+        })
+        .attr("stroke", function (d) {
+            return (TownStrokeColour);
+        })
+        .attr("stroke-width", function (d) {
+            return (areaScale(d.Population) / 5);
         });
+
+    // Create town labels
+    townNames
+        .attr("x", function (d) {
+            return Projection([d.lng, d.lat])[0] + areaScale(d.Population) + 1;
+        })
+        .attr("y", function (d) {
+            return Projection([d.lng, d.lat])[1] + 4;
+        })
+        .attr("font-family", "sans-serif")
+        .attr("font-size", 11)
+        .attr("fill", "darkblue")
+        ;
+
+    townNames.text(function (d) {
+        return d.Town;
     });
 }
 
 function LoadPage() {
 
+    d3.select("button")
+        .on("click", function () {
+            RefreshTownsData(DefaultNumberOfTowns);
+        });
+
     LoadData(DefaultNumberOfTowns);
+
+}
+
+function TownsDataSource(NoOfTowns) {
+    return RemoteDataSourceBase + NoOfTowns.toString();
+}
+
+function RefreshTownsData(NumberOfTowns) {
+    console.log("Called RefreshTownsData at " + (new Date).toLocaleTimeString());
+
+    var dataSource = TownsDataSource(NumberOfTowns.toString());
+
+    d3.json(dataSource, function (error, data) {
+        if (error) {
+            HandleError(error);
+        } else {
+            LoadTowns(data, true);
+        }
+    });
 
 }
 
@@ -118,9 +160,9 @@ function LoadData(NumberOfTowns) {
         NumberOfTowns = DefaultNumberOfTowns;
     } else {
 
-        var dataSource = RemoteDataSourceBase + NumberOfTowns.toString();
+        var dataSource = TownsDataSource(NumberOfTowns.toString());
 
-        // Local test data
+        // Local test data. Only interested in doing this on first load, not on data refresh.
         if (DataSourceLocation === "local") {
             dataSource = "sampleData/10Towns.json";
             //dataSource = "sampleData/500Towns.json";
@@ -149,5 +191,5 @@ function HandleError(error) {
     alert(errorMessage);
 }
 
-window.onload = LoadPage();
+window.onload = LoadPage;
 
