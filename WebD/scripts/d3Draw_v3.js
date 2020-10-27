@@ -8,10 +8,12 @@ var DefaultNumberOfTowns = 20;
 
 
 // Width and height
-//var BoxWidth = 960;
-//var BoxHeight = 1160;
 var BoxWidth = 800;
 var BoxHeight = 970;
+
+// Town styles
+var TownFillColour = "rgb(63,255,63)";
+var TownStrokeColour = "rgb(255,63,63)";
 
 function D3Draw(dataset) {
     // Create scale function for circles
@@ -19,16 +21,6 @@ function D3Draw(dataset) {
     var aScale = d3.scale.sqrt()
         .domain([0, d3.max(dataset, function (d) { return d.Population; })])
         .range([0, 10]);
-
-    //// Define X axis
-    //var xAxis = d3.svg.axis()
-    //    .scale(xScale).orient("bottom")
-    //    .ticks(5);
-
-    //// Define Y axis
-    //var yAxis = d3.svg.axis()
-    //    .scale(yScale).orient("left")
-    //    .ticks(5);
 
     // Create SVG element
     svgUK = d3.select("body")
@@ -41,9 +33,10 @@ function D3Draw(dataset) {
     d3.json("uk.json", function (error, uk) {
         if (error) return console.error(error);
 
+        // Get countries
         var subunits = topojson.feature(uk, uk.objects.subunits);
 
-        //var projection = d3.geo.mercator();
+        // 
         var projection = d3.geo.albers()
             .center([0, 55.4])
             .rotate([4.4, 0])
@@ -57,10 +50,6 @@ function D3Draw(dataset) {
         svgUK.append("path")
             .datum(subunits)
             .attr("d", path);
-
-        //svg.append("path")
-        //    .datum(topojson.feature(uk, uk.objects.subunits))
-        //    .attr("d", d3.geo.path().projection(d3.geo.mercator()));
 
         // Add subunit class to all subunits so can control styling of each country
         svgUK.selectAll(".subunit")
@@ -87,10 +76,10 @@ function D3Draw(dataset) {
                 return (aScale(d.Population));
             })
             .attr("fill", function (d) {
-                return ("rgb(0,255,0)");
+                return (TownFillColour);
             })
             .attr("stroke", function (d) {
-                return ("rgb(255,0,0)");
+                return (TownStrokeColour);
             })
             .attr("stroke-width", function (d) {
                 return (aScale(d.Population) / 5);
@@ -101,11 +90,11 @@ function D3Draw(dataset) {
             .append("text")
             .attr("x", function (d) {
                 //return (xScale(d.lng));
-                return projection([d.lng, d.lat])[0];
+                return projection([d.lng, d.lat])[0] + aScale(d.Population) + 1 ;
             })
             .attr("y", function (d) {
                 //return (yScale(d.lat));
-                return (projection([d.lng, d.lat])[1]);
+                return projection([d.lng, d.lat])[1] + 4;
             })
             .attr("font-family", "sans-serif")
             .attr("font-size", 11)
@@ -116,14 +105,6 @@ function D3Draw(dataset) {
             return d.Town;
         });
     });
-
-
-
-
-
-    // todo: Create labels
-    // todo: Create X axis, Y axis
-
 }
 
 function LoadPage() {
@@ -173,4 +154,4 @@ function HandleError(error) {
 }
 
 window.onload = LoadPage();
-//window.onload = D3Draw;
+
