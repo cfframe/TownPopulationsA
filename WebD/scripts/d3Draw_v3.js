@@ -61,12 +61,12 @@ function D3Draw(TownsData) {
             .attr("class", function (d) { return "subunit " + d.id; })
             .attr("d", path);
 
-        LoadTowns(TownsData);
+        DrawTowns(TownsData);
 
     });
 }
 
-function LoadTowns(TownsData, IsReload) {
+function DrawTowns(TownsData, IsReload) {
     console.log("Called LoadTowns at " + (new Date).toLocaleTimeString());
     IsReload = null ? false : IsReload;
 
@@ -108,10 +108,28 @@ function LoadTowns(TownsData, IsReload) {
 
         townNames = SvgUK.selectAll("text").data(TownsData).enter()
             .append("text");
+
+        // Create town labels
+        townNames
+            .attr("x", function (d) {
+                return Projection([d.lng, d.lat])[0] + areaScale(d.Population) + 1;
+            })
+            .attr("y", function (d) {
+                return Projection([d.lng, d.lat])[1] + 4;
+            })
+            .attr("font-family", "sans-serif")
+            .attr("font-size", 11)
+            .attr("fill", "darkblue");
+
+        townNames.text(function (d) {
+            return d.Town;
+        });
+
     } else {
 
 
-        circles = SvgUK.selectAll("circle").data(TownsData)
+        circles = SvgUK.selectAll("circle").data(TownsData);
+
         circles.enter().append("circle")
             .attr("cx", function (d) {
                 //console.log("Lng " + d.lng + "; Lat " + d.lat + "; Town: " + d.Town);
@@ -143,32 +161,35 @@ function LoadTowns(TownsData, IsReload) {
             })
             .attr("r", function (d) {
                 return (areaScale(d.Population));
-            })
+            });
 
 
 
         townNames = SvgUK.selectAll("text").data(TownsData)
-            .transition().duration(TransitionStyle.Duration).ease(TransitionStyle.Ease);
+
+        townNames.enter().append("text")
+            .attr("x", function (d) {
+                return areaScale(d.Population) + 1;
+            })
+            .attr("y", function (d) {
+                return Projection([d.lng, d.lat])[1] + 4;
+            })
+            .attr("font-family", "sans-serif")
+            .attr("font-size", 11)
+            .attr("fill", "darkblue")
+
+        townNames.text(function (d) {
+                return d.Town;
+            });
+
+        townNames.transition().duration(TransitionStyle.Duration).ease(TransitionStyle.Ease)
+            .attr("x", function (d) {
+                return Projection([d.lng, d.lat])[0] + areaScale(d.Population) + 1;
+            })
+            .attr("y", function (d) {
+                return Projection([d.lng, d.lat])[1] + 4;
+            });
     }
-
-
-
-    // Create town labels
-    townNames
-        .attr("x", function (d) {
-            return Projection([d.lng, d.lat])[0] + areaScale(d.Population) + 1;
-        })
-        .attr("y", function (d) {
-            return Projection([d.lng, d.lat])[1] + 4;
-        })
-        .attr("font-family", "sans-serif")
-        .attr("font-size", 11)
-        .attr("fill", "darkblue")
-        ;
-
-    townNames.text(function (d) {
-        return d.Town;
-    });
 }
 
 function LoadPage() {
@@ -193,7 +214,7 @@ function RefreshTownsData(NumberOfTowns) {
         if (error) {
             HandleError(error);
         } else {
-            LoadTowns(data, true);
+            DrawTowns(data, true);
         }
     });
 
