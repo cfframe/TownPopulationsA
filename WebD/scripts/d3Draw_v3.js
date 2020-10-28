@@ -15,6 +15,12 @@ var TownFillColour = "rgb(63,255,63)";
 var TownStrokeColour = "rgb(255,63,63)";
 var MaxCircleSize = 10;
 
+var TransitionStyle = {
+    Duration: 2000,
+    Ease: "bounce"
+};
+
+
 // Initialise Projection
 var Projection = d3.geo.albers()
     .center([0, 55.4])
@@ -77,8 +83,10 @@ function LoadTowns(dataset, isReload) {
         townNames = SvgUK.selectAll("text").data(dataset).enter()
             .append("text");
     } else {
-        circles = SvgUK.selectAll("circle").data(dataset);
-        townNames = SvgUK.selectAll("text").data(dataset);
+        circles = SvgUK.selectAll("circle").data(dataset)
+            .transition().duration(TransitionStyle.Duration).ease(TransitionStyle.Ease);
+        townNames = SvgUK.selectAll("text").data(dataset)
+            .transition().duration(TransitionStyle.Duration).ease(TransitionStyle.Ease);
     }
 
     // Circles - position from lng/lat, size from population
