@@ -6,7 +6,7 @@
 var SvgUK;
 var RemoteDataSourceBase = "http://35.211.183.112/Circles/Towns/";
 var DataSourceLocation = "remote"; //"local" or "remote"
-var DefaultNumberOfTowns = 20;
+var DefaultNumberOfTowns = 5;
 
 // Width and height
 var BoxWidth = 640;
@@ -82,36 +82,76 @@ function LoadTowns(TownsData, IsReload) {
     if (!IsReload) {
         circles = SvgUK.selectAll("circle").data(TownsData).enter()
             .append("circle");
+        // Circles - position from lng/lat, size from population
+        circles
+            .attr("cx", function (d) {
+                //console.log("Lng " + d.lng + "; Lat " + d.lat + "; Town: " + d.Town);
+                return Projection([d.lng, d.lat])[0];
+            })
+            .attr("cy", function (d) {
+                return (Projection([d.lng, d.lat])[1]);
+            })
+            .attr("r", function (d) {
+                return (areaScale(d.Population));
+            })
+            .attr("fill", function (d) {
+                return (TownFillColour);
+            })
+            .attr("stroke", function (d) {
+                return (TownStrokeColour);
+            })
+            .attr("stroke-width", function (d) {
+                return (areaScale(d.Population) / 5);
+            });
+
+
+
         townNames = SvgUK.selectAll("text").data(TownsData).enter()
             .append("text");
     } else {
+
+
         circles = SvgUK.selectAll("circle").data(TownsData)
-            .transition().duration(TransitionStyle.Duration).ease(TransitionStyle.Ease);
+        circles.enter().append("circle")
+            .attr("cx", function (d) {
+                //console.log("Lng " + d.lng + "; Lat " + d.lat + "; Town: " + d.Town);
+                return 0;
+            })
+            .attr("cy", function (d) {
+                return (Projection([d.lng, d.lat])[1]);
+            })
+            .attr("r", function (d) {
+                return (areaScale(d.Population));
+            })
+            .attr("fill", function (d) {
+                return (TownFillColour);
+            })
+            .attr("stroke", function (d) {
+                return (TownStrokeColour);
+            })
+            .attr("stroke-width", function (d) {
+                return (areaScale(d.Population) / 5);
+            });
+
+        circles.transition().duration(TransitionStyle.Duration).ease(TransitionStyle.Ease)
+            .attr("cx", function (d) {
+                //console.log("Lng " + d.lng + "; Lat " + d.lat + "; Town: " + d.Town);
+                return Projection([d.lng, d.lat])[0];
+            })
+            .attr("cy", function (d) {
+                return (Projection([d.lng, d.lat])[1]);
+            })
+            .attr("r", function (d) {
+                return (areaScale(d.Population));
+            })
+
+
+
         townNames = SvgUK.selectAll("text").data(TownsData)
             .transition().duration(TransitionStyle.Duration).ease(TransitionStyle.Ease);
     }
 
-    // Circles - position from lng/lat, size from population
-    circles
-        .attr("cx", function (d) {
-            //console.log("Lng " + d.lng + "; Lat " + d.lat + "; Town: " + d.Town);
-            return Projection([d.lng, d.lat])[0];
-        })
-        .attr("cy", function (d) {
-            return (Projection([d.lng, d.lat])[1]);
-        })
-        .attr("r", function (d) {
-            return (areaScale(d.Population));
-        })
-        .attr("fill", function (d) {
-            return (TownFillColour);
-        })
-        .attr("stroke", function (d) {
-            return (TownStrokeColour);
-        })
-        .attr("stroke-width", function (d) {
-            return (areaScale(d.Population) / 5);
-        });
+
 
     // Create town labels
     townNames
