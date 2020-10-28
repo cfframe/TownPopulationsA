@@ -1,5 +1,7 @@
-//const DataSource = "sampleData/10Towns.json";
-// http://35.211.183.112/Circles/Towns/50
+// Further ideas:
+// Add transition delay, limited by dataset size
+// Add flash when transition ends?
+// Improve error handling
 
 var SvgUK;
 var RemoteDataSourceBase = "http://35.211.183.112/Circles/Towns/";
@@ -30,7 +32,7 @@ var Projection = d3.geo.albers()
     .translate([BoxWidth / 2, BoxHeight / 2]);
 
 
-function D3Draw(dataset) {
+function D3Draw(TownsData) {
     // Create SVG element
     SvgUK = d3.select("body")
         .append("svg")
@@ -39,11 +41,11 @@ function D3Draw(dataset) {
         ;
 
     // Draw UK map and add towns
-    d3.json("uk.json", function (error, uk) {
-        if (error) return console.error(error);
+    d3.json("uk.json", function (Error, UKData) {
+        if (Error) return console.error(Error);
 
         // Get countries
-        var subunits = topojson.feature(uk, uk.objects.subunits);
+        var subunits = topojson.feature(UKData, UKData.objects.subunits);
 
         var path = d3.geo.path()
             .projection(Projection);
@@ -54,38 +56,38 @@ function D3Draw(dataset) {
 
         // Add subunit class to all subunits so can control styling of each country
         SvgUK.selectAll(".subunit")
-            .data(topojson.feature(uk, uk.objects.subunits).features)
+            .data(topojson.feature(UKData, UKData.objects.subunits).features)
             .enter().append("path")
             .attr("class", function (d) { return "subunit " + d.id; })
             .attr("d", path);
 
-        LoadTowns(dataset);
+        LoadTowns(TownsData);
 
     });
 }
 
-function LoadTowns(dataset, isReload) {
+function LoadTowns(TownsData, IsReload) {
     console.log("Called LoadTowns at " + (new Date).toLocaleTimeString());
-    isReload = null ? false : isReload;
+    IsReload = null ? false : IsReload;
 
     // Create scale function for circles
     var areaScale = d3.scale.sqrt()
-        .domain([0, d3.max(dataset, function (d) { return d.Population; })])
+        .domain([0, d3.max(TownsData, function (d) { return d.Population; })])
         .range([0, MaxCircleSize]);
 
     // Initialize Circles and Town labels
     var circles,
         townNames;
 
-    if (!isReload) {
-        circles = SvgUK.selectAll("circle").data(dataset).enter()
+    if (!IsReload) {
+        circles = SvgUK.selectAll("circle").data(TownsData).enter()
             .append("circle");
-        townNames = SvgUK.selectAll("text").data(dataset).enter()
+        townNames = SvgUK.selectAll("text").data(TownsData).enter()
             .append("text");
     } else {
-        circles = SvgUK.selectAll("circle").data(dataset)
+        circles = SvgUK.selectAll("circle").data(TownsData)
             .transition().duration(TransitionStyle.Duration).ease(TransitionStyle.Ease);
-        townNames = SvgUK.selectAll("text").data(dataset)
+        townNames = SvgUK.selectAll("text").data(TownsData)
             .transition().duration(TransitionStyle.Duration).ease(TransitionStyle.Ease);
     }
 
@@ -133,18 +135,16 @@ function LoadPage() {
 
     d3.select("button")
         .on("click", function () {
-            RefreshTownsData(DefaultNumberOfTowns);
+            RefreshTownsData(DefaultNumberOfTowns+9);
+            //RefreshTownsData(DefaultNumberOfTowns);
         });
 
     LoadData(DefaultNumberOfTowns);
 
 }
 
-function TownsDataSource(NoOfTowns) {
-    return RemoteDataSourceBase + NoOfTowns.toString();
-}
-
 function RefreshTownsData(NumberOfTowns) {
+
     console.log("Called RefreshTownsData at " + (new Date).toLocaleTimeString());
 
     var dataSource = TownsDataSource(NumberOfTowns.toString());
@@ -184,6 +184,10 @@ function LoadData(NumberOfTowns) {
             }
         });
     }
+}
+
+function TownsDataSource(NoOfTowns) {
+    return RemoteDataSourceBase + NoOfTowns.toString();
 }
 
 function HandleError(error) {
