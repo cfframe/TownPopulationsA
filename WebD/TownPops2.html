@@ -6,15 +6,35 @@
     <link rel="stylesheet" href="styles/main.css" />
     <script type="text/javascript" src="d3/d3.v3.4.1.js"></script>
     <script type="text/javascript" src="d3/topojson.v1.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script type="text/javascript" src="scripts/Slider.js"></script>
     <script type="text/javascript" src="scripts/d3Draw_v3.js"></script>
 </head>
 <body>
     <div style="position: fixed">
         <button>Press to reload town data</button>
+        <br />
+        <p>
+            <label for="ChosenNoOfTowns">
+                Use slider to choose number of towns
+                <br />then press reload button:
+            </label>
+            <input type="text" id="ChosenNoOfTowns" readonly style="border:0; color:#f6931f; font-weight:bold;">
+        </p>
+        <br />
+        <div id="TownsSlider" style="height:600px;"></div>
+        <!-- Quick and dirty way of spacing -->
+        <br />
+        <br />
+        <br />
+        <br />
         <span>
-            <br />Map data and some ideas sourced from Mike Bostock's 
+            <br />Map data and some ideas sourced from Mike Bostock's
             <br />article <a href="https://bost.ocks.org/mike/map/">Let's make a map</a>
         </span>
+
     </div>
 </body>
 </html>

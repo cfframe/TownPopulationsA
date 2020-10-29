@@ -6,7 +6,7 @@
 var SvgUK;
 var RemoteDataSourceBase = "http://35.211.183.112/Circles/Towns/";
 var DataSourceLocation = "remote"; //"local" or "remote"
-var DefaultNumberOfTowns = 5;
+var DefaultNumberOfTowns = 20;
 
 // Width and height
 var BoxWidth = 640;
@@ -193,9 +193,7 @@ function LoadPage() {
 
     d3.select("button")
         .on("click", function () {
-            //RefreshTownsData(DefaultNumberOfTowns + 4);
-            RefreshTownsData(DefaultNumberOfTowns - 2);
-            //RefreshTownsData(DefaultNumberOfTowns);
+            RefreshTownsData($("#TownsSlider").slider("value"));
         });
 
     LoadData(DefaultNumberOfTowns);
