@@ -15,6 +15,7 @@ var BoxHeight = 784;
 // Town styles
 var TownFillColour = "rgb(63,255,63)";
 var TownStrokeColour = "rgb(255,63,63)";
+var TownHoverFillColour = "rgb(127,127,127)";
 var MaxCircleSize = 10;
 
 var TransitionStyle = {
@@ -97,6 +98,21 @@ function DrawTowns(TownsData, IsReload) {
             .attr("stroke", TownStrokeColour)
             .attr("stroke-width", function (d) {
                 return (areaScale(d.Population) / 5);
+            })
+            //.on("mouseover", function () {
+            //    d3.select(this)
+            //        .attr("fill", TownHoverFillColour);
+            //})
+            //.on("mouseout", function (d) {
+            //    d3.select(this)
+            //        .attr("fill", TownFillColour);
+            //})
+            .append("title")
+            .text(function (d) {
+                return ("Town: " + d.Town
+                    + "\nCounty: " + d.County
+                    + "\nPopulation: " + d.Population
+                );
             });
 
         townNames.enter().append("text");
@@ -111,7 +127,8 @@ function DrawTowns(TownsData, IsReload) {
             })
             .attr("font-family", "sans-serif")
             .attr("font-size", 11)
-            .attr("fill", "darkblue");
+            .attr("fill", "darkblue")
+            .style("pointer-events", "none");
 
         townNames.text(function (d) {
             return d.Town;
@@ -133,6 +150,29 @@ function DrawTowns(TownsData, IsReload) {
             .attr("stroke", TownStrokeColour)
             .attr("stroke-width", function (d) {
                 return (areaScale(d.Population) / 5);
+            })
+            //.on("mouseover", function () {
+            //    d3.select(this)
+            //        .attr("fill", TownHoverFillColour);
+            //})
+            //.on("mouseout", function (d) {
+            //    d3.select(this)
+            //        .attr("fill", TownFillColour);
+            //})
+            .append("title")
+            //.text(function (d) {
+            //    return ("Town: " + d.Town
+            //        + "\nCounty: " + d.County
+            //        + "\nPopulation: " + d.Population
+            //    );
+            //});
+
+        townCircles.select("title")
+            .text(function (d) {
+                return ("Town: " + d.Town
+                    + "\nCounty: " + d.County
+                    + "\nPopulation: " + d.Population
+                );
             });
 
         townCircles.transition().duration(TransitionStyle.Duration).ease(TransitionStyle.Ease)
@@ -149,8 +189,7 @@ function DrawTowns(TownsData, IsReload) {
             .attr("fill", TownFillColour)
             .attr("stroke-width", function (d) {
                 return (areaScale(d.Population) / 5);
-            })
-            ;
+            });
 
         townCircles.exit()
             .transition()
@@ -168,6 +207,7 @@ function DrawTowns(TownsData, IsReload) {
             .attr("font-family", "arial, sans-serif")
             .attr("font-size", 11)
             .attr("fill", "darkblue")
+            .style("pointer-events", "none");
 
         townNames.text(function (d) {
                 return d.Town;
