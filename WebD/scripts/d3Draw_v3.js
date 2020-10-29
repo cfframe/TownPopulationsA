@@ -229,7 +229,8 @@ function LoadData(NumberOfTowns) {
 
         // Local test data. Only interested in doing this on first load, not on data refresh.
         if (DataSourceLocation === "local") {
-            dataSource = "sampleData/10Towns.json";
+            dataSource = "sampleData/10TownsDodgy.json";
+            //dataSource = "sampleData/10Towns.json";
             //dataSource = "sampleData/500Towns.json";
         }
 
@@ -247,15 +248,21 @@ function TownsDataSource(NoOfTowns) {
     return RemoteDataSourceBase + NoOfTowns.toString();
 }
 
-function HandleError(error) {
-    // This is so basic, it really doesn't give much help. All you usually know is something went wrong.
-    var errorMessage = "Unexpected error: \n";
-    if (error.message) {
-        errorMessage += error.message
+function HandleError(Error) {
+    var errorMessage = "Unexpected error, pass details below to IT Support.";
+
+    if (Error.innerHtml) {
+        errorMessage += "\nInnerHtml:\n";
+        errorMessage += Error.stack;
+    } else if (Error.stack) {
+        errorMessage += "\nStack:\n";
+        errorMessage += Error.stack;
+    } else if (Error.message) {
+        errorMessage += "\nMessage:\n";
+        errorMessage += Error.message
     } else {
         errorMessage += "No message attached to caught error."
     }
-    errorMessage += "\nPass above details to IT Support (in the context of where you got this code)."
 
     alert(errorMessage);
 }
