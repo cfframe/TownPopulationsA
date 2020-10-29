@@ -76,16 +76,15 @@ function DrawTowns(TownsData, IsReload) {
         .range([0, MaxCircleSize]);
 
     // Initialize Circles and Town labels
-    var circles,
-        townNames;
+    var townCircles = SvgUK.selectAll("circle").data(TownsData);
+    var townNames = SvgUK.selectAll("text").data(TownsData);
 
     if (!IsReload) {
-        circles = SvgUK.selectAll("circle").data(TownsData).enter()
-            .append("circle");
+        townCircles.enter().append("circle");
+
         // Circles - position from lng/lat, size from population
-        circles
+        townCircles
             .attr("cx", function (d) {
-                //console.log("Lng " + d.lng + "; Lat " + d.lat + "; Town: " + d.Town);
                 return Projection([d.lng, d.lat])[0];
             })
             .attr("cy", function (d) {
@@ -94,20 +93,13 @@ function DrawTowns(TownsData, IsReload) {
             .attr("r", function (d) {
                 return (areaScale(d.Population));
             })
-            .attr("fill", function (d) {
-                return (TownFillColour);
-            })
-            .attr("stroke", function (d) {
-                return (TownStrokeColour);
-            })
+            .attr("fill", TownFillColour)
+            .attr("stroke", TownStrokeColour)
             .attr("stroke-width", function (d) {
                 return (areaScale(d.Population) / 5);
             });
 
-
-
-        townNames = SvgUK.selectAll("text").data(TownsData).enter()
-            .append("text");
+        townNames.enter().append("text");
 
         // Create town labels
         townNames
@@ -127,12 +119,8 @@ function DrawTowns(TownsData, IsReload) {
 
     } else {
 
-
-        circles = SvgUK.selectAll("circle").data(TownsData);
-
-        circles.enter().append("circle")
+        townCircles.enter().append("circle")
             .attr("cx", function (d) {
-                //console.log("Lng " + d.lng + "; Lat " + d.lat + "; Town: " + d.Town);
                 return 0;
             })
             .attr("cy", function (d) {
@@ -141,19 +129,15 @@ function DrawTowns(TownsData, IsReload) {
             .attr("r", function (d) {
                 return (areaScale(d.Population));
             })
-            .attr("fill", function (d) {
-                return (TownFillColour);
-            })
-            .attr("stroke", function (d) {
-                return (TownStrokeColour);
-            })
+            .attr("fill", "white")
+            .attr("stroke", TownStrokeColour)
             .attr("stroke-width", function (d) {
                 return (areaScale(d.Population) / 5);
             });
 
-        circles.transition().duration(TransitionStyle.Duration).ease(TransitionStyle.Ease)
+        townCircles.transition().duration(TransitionStyle.Duration).ease(TransitionStyle.Ease)
             .attr("cx", function (d) {
-                //console.log("Lng " + d.lng + "; Lat " + d.lat + "; Town: " + d.Town);
+                console.log("Lng " + d.lng + "; Lat " + d.lat + "; Town: " + d.Town + "; CharCode1:" + d.Town.charCodeAt(0) + "; CharCode2: " + d.Town.charCodeAt(1));
                 return Projection([d.lng, d.lat])[0];
             })
             .attr("cy", function (d) {
@@ -161,20 +145,27 @@ function DrawTowns(TownsData, IsReload) {
             })
             .attr("r", function (d) {
                 return (areaScale(d.Population));
-            });
+            })
+            .attr("fill", TownFillColour)
+            .attr("stroke-width", function (d) {
+                return (areaScale(d.Population) / 5);
+            })
+            ;
 
-
-
-        townNames = SvgUK.selectAll("text").data(TownsData)
+        townCircles.exit()
+            .transition()
+            .duration(TransitionStyle.Duration)
+            .style("opacity", 0)
+            .remove();
 
         townNames.enter().append("text")
             .attr("x", function (d) {
-                return areaScale(d.Population) + 1;
+                return areaScale(d.Population) + 1; // Position new items to left initially
             })
             .attr("y", function (d) {
                 return Projection([d.lng, d.lat])[1] + 4;
             })
-            .attr("font-family", "sans-serif")
+            .attr("font-family", "arial, sans-serif")
             .attr("font-size", 11)
             .attr("fill", "darkblue")
 
@@ -189,6 +180,12 @@ function DrawTowns(TownsData, IsReload) {
             .attr("y", function (d) {
                 return Projection([d.lng, d.lat])[1] + 4;
             });
+
+        townNames.exit()
+            .transition()
+            .duration(TransitionStyle.Duration)
+            .style("opacity", 0)
+            .remove();
     }
 }
 
@@ -196,7 +193,8 @@ function LoadPage() {
 
     d3.select("button")
         .on("click", function () {
-            RefreshTownsData(DefaultNumberOfTowns+9);
+            //RefreshTownsData(DefaultNumberOfTowns + 4);
+            RefreshTownsData(DefaultNumberOfTowns - 2);
             //RefreshTownsData(DefaultNumberOfTowns);
         });
 
