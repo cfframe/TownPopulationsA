@@ -16,7 +16,7 @@ var BoxHeight = 784;
 var TownFillColour = "rgb(63,255,63)";
 var TownStrokeColour = "rgb(255,63,63)";
 var TownHoverFillColour = "rgb(127,127,127)";
-var MaxCircleSize = 10;
+var ReferenceBigCircleSize = 10;
 
 var TransitionStyle = {
     Duration: 2000,
@@ -24,7 +24,7 @@ var TransitionStyle = {
 };
 
 
-// Initialise Projection
+// Define Projection
 var Projection = d3.geo.albers()
     .center([0, 55.4])
     .rotate([4.4, 0])
@@ -35,7 +35,7 @@ var Projection = d3.geo.albers()
 
 function D3Draw(TownsData) {
     // Create SVG element
-    SvgUK = d3.select("body")
+    SvgUK = d3.select("#svgMap")
         .append("svg")
         .attr("width", BoxWidth)
         .attr("height", BoxHeight)
@@ -74,9 +74,9 @@ function DrawTowns(TownsData, IsReload) {
     // Create scale function for circles
     var areaScale = d3.scale.sqrt()
         .domain([0, d3.max(TownsData, function (d) { return d.Population; })])
-        .range([0, MaxCircleSize]);
+        .range([0, ReferenceBigCircleSize]);
 
-    // Initialize Circles and Town labels
+    // Initialize Town Circles and names
     var townCircles = SvgUK.selectAll("circle").data(TownsData);
     var townNames = SvgUK.selectAll("text").data(TownsData);
 
@@ -89,24 +89,16 @@ function DrawTowns(TownsData, IsReload) {
                 return Projection([d.lng, d.lat])[0];
             })
             .attr("cy", function (d) {
-                return (Projection([d.lng, d.lat])[1]);
+                return Projection([d.lng, d.lat])[1];
             })
             .attr("r", function (d) {
-                return (areaScale(d.Population));
+                return areaScale(d.Population);
             })
             .attr("fill", TownFillColour)
             .attr("stroke", TownStrokeColour)
             .attr("stroke-width", function (d) {
                 return (areaScale(d.Population) / 5);
             })
-            //.on("mouseover", function () {
-            //    d3.select(this)
-            //        .attr("fill", TownHoverFillColour);
-            //})
-            //.on("mouseout", function (d) {
-            //    d3.select(this)
-            //        .attr("fill", TownFillColour);
-            //})
             .append("title")
             .text(function (d) {
                 return ("Town: " + d.Town
@@ -136,9 +128,10 @@ function DrawTowns(TownsData, IsReload) {
 
     } else {
 
+        // Position new items to right initially. Otherwise, same as above.
         townCircles.enter().append("circle")
             .attr("cx", function (d) {
-                return 0;
+                return BoxWidth;
             })
             .attr("cy", function (d) {
                 return (Projection([d.lng, d.lat])[1]);
@@ -151,21 +144,7 @@ function DrawTowns(TownsData, IsReload) {
             .attr("stroke-width", function (d) {
                 return (areaScale(d.Population) / 5);
             })
-            //.on("mouseover", function () {
-            //    d3.select(this)
-            //        .attr("fill", TownHoverFillColour);
-            //})
-            //.on("mouseout", function (d) {
-            //    d3.select(this)
-            //        .attr("fill", TownFillColour);
-            //})
-            .append("title")
-            //.text(function (d) {
-            //    return ("Town: " + d.Town
-            //        + "\nCounty: " + d.County
-            //        + "\nPopulation: " + d.Population
-            //    );
-            //});
+            .append("title");
 
         townCircles.select("title")
             .text(function (d) {
@@ -197,9 +176,10 @@ function DrawTowns(TownsData, IsReload) {
             .style("opacity", 0)
             .remove();
 
+        // Position new items to right initially. Otherwise, same as above.
         townNames.enter().append("text")
             .attr("x", function (d) {
-                return areaScale(d.Population) + 1; // Position new items to left initially
+                return BoxWidth + areaScale(d.Population) + 1; 
             })
             .attr("y", function (d) {
                 return Projection([d.lng, d.lat])[1] + 4;

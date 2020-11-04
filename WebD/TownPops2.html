@@ -13,26 +13,35 @@
     <script type="text/javascript" src="scripts/d3Draw_v3.js"></script>
 </head>
 <body>
-    <div style="position: fixed; top: 0px;">
-        <button>Press to reload town data</button>
-        <br />
-        <p>
-            <label for="ChosenNoOfTowns">
-                Use slider to choose number of towns
-                <br />then press reload button:
-            </label>
-            <input type="text" id="ChosenNoOfTowns" readonly style="border:0; color:#f6931f; font-weight:bold;">
-        </p>
-        <br />
+
+    <div class="row">
+        <h2>D3 assignment</h2>
+        <p>See notes further down for some detail.</p>
     </div>
-    <div style="position: fixed; top: 100px; width: 20px">
-        <div id="TownsSlider" style="height:600px;"></div>
+    <div class="row">
+        <div class="column left" id="tools">
+            <button>Press to reload town data</button>
+            <br />
+            <p>
+                <label for="ChosenNoOfTowns">
+                    Use slider to choose number of towns then press reload button:
+                </label>
+                <input type="text" id="ChosenNoOfTowns" readonly style="border:0; color:#f6931f; font-weight:bold; width: 30px">
+            </p>
+            <div>
+                <div id="TownsSlider" style="height:300px;"></div>
+            </div>
+            <br /><h2>Notes</h2>
+            <ul>
+                <li>Circle areas are proportional to population size, using the biggest population of the currently displayed set as a maximum reference size.</li>
+                <li>Map data sourced from Mike Bostock's article <a href="https://bost.ocks.org/mike/map/">Let's make a map</a></li>
+            </ul>
+        </div>
+        <div class="column right" id="svgMap">
+        </div>
     </div>
-    <div style="position: fixed; top: 780px">
-        <span>
-            <br />Map data and some ideas sourced from Mike Bostock's
-            <br />article <a href="https://bost.ocks.org/mike/map/">Let's make a map</a>
-        </span>
+
+    <div>
     </div>
 </body>
 </html>
